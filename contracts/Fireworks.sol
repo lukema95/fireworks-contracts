@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
@@ -8,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
-contract Fireworks is IERC165, IERC721Receiver, IERC1155Receiver {
+contract Fireworks is Ownable, ReentrancyGuard, IERC165, IERC721Receiver, IERC1155Receiver {
 
   using ERC165Checker for address;
 
@@ -56,17 +58,25 @@ contract Fireworks is IERC165, IERC721Receiver, IERC1155Receiver {
   function burn(address tokenContract, uint256[] calldata tokenIds, uint256[] calldata amounts) external {
     require(_checkContract(tokenContract), "contract address error");
     require(_verifyApprove(tokenContract), "not authorized by contract");
-    _transferToken(tokenContract, msg.sender, tokenIds, amounts);
+    _transferToken(tokenContract, msg.sender, address(this), tokenIds, amounts);
   }
-  
-  function _transferToken(address tokenContract, address from, uint256[] calldata tokenIds, uint256[] calldata amounts) internal {
-      if (isERC721(tokenContract)) {
-        for(uint256 i = 0; i < tokenIds.length; i++) {
-          IERC721(tokenContract).safeTransferFrom(msg.sender, address(this), tokenIds[i]);
-        }
-      }else {
-        IERC1155(tokenContract).safeBatchTransferFrom(from, address(this), tokenIds, amounts, "");
+
+  /**
+   * @dev 
+   */
+  function withdraw(address tokenContract, address to, uint256[] calldata tokenIds, uint256[] calldata amounts) external onlyOwner nonReentrant {
+    require(_checkContract(tokenContract), "contract address error");
+    _transferToken(tokenContract, address(this), to, tokenIds, amounts);
+  }
+
+  function _transferToken(address tokenContract, address from, address to, uint256[] calldata tokenIds, uint256[] calldata amounts) internal {
+    if (isERC721(tokenContract)) {
+      for(uint256 i = 0; i < tokenIds.length; i++) {
+        IERC721(tokenContract).safeTransferFrom(from, to, tokenIds[i]);
       }
+    }else {
+      IERC1155(tokenContract).safeBatchTransferFrom(from, to, tokenIds, amounts, "");
+    }
   }
 
   // verify that the token contract is authorized to the contract
