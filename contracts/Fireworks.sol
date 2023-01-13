@@ -10,6 +10,11 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
+/**
+ * @title Fireworks
+ * @author lukema95
+ * @notice Fireworks is used to burn the user's NFT and give rewards accordingly
+ */
 contract Fireworks is Ownable, ReentrancyGuard, IERC165, IERC721Receiver, IERC1155Receiver {
 
   using ERC165Checker for address;
@@ -31,16 +36,25 @@ contract Fireworks is Ownable, ReentrancyGuard, IERC165, IERC721Receiver, IERC11
   }
 
   /**
-  * Always returns `IERC721Receiver.onERC721Received.selector`.
+  * @dev always returns `IERC721Receiver.onERC721Received.selector`.
+  * more details: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC1155/IERC1155Receiver.sol
   */
   function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
     return this.onERC721Received.selector;
   }
 
+  /**
+  * @dev always returns `IERC1155Receiver.onERC1155Received.selector`.
+  * more details: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/IERC721Receiver.sol
+  */
   function onERC1155Received(address, address, uint256, uint256, bytes memory) public virtual returns (bytes4) {
     return this.onERC1155Received.selector;
   }
 
+  /**
+  * @dev always returns `IERC1155Receiver.onERC1155BatchReceived.selector`.
+  * more details:  https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/IERC721Receiver.sol
+  */
   function onERC1155BatchReceived(
     address,
     address,
@@ -53,7 +67,11 @@ contract Fireworks is Ownable, ReentrancyGuard, IERC165, IERC721Receiver, IERC11
   }
 
   /**
-   * @dev 
+   * @dev External function to burn ERC721 or ERC1155 NFT
+   * 
+   * @param tokenContract The address of the NFT contract to be burned
+   * @param tokenIds The ids of the NFT to be burn
+   * @param amounts The amounts of NFT to be burn, null if it is an ERC721 contract
    */
   function burn(address tokenContract, uint256[] calldata tokenIds, uint256[] calldata amounts) external {
     require(_checkContract(tokenContract), "contract address error");
@@ -62,13 +80,27 @@ contract Fireworks is Ownable, ReentrancyGuard, IERC165, IERC721Receiver, IERC11
   }
 
   /**
-   * @dev 
+   * @dev External function to withdraw NFT of contract
+   * 
+   * @param tokenContract The address of the contract to be withdrawn
+   * @param to The address to receive the NFT
+   * @param tokenIds The ids of the NFT to be withdraw
+   * @param amounts The amounts of NFT to be withdraw, null if it is an ERC721 contract
    */
   function withdraw(address tokenContract, address to, uint256[] calldata tokenIds, uint256[] calldata amounts) external onlyOwner nonReentrant {
     require(_checkContract(tokenContract), "contract address error");
     _transferToken(tokenContract, address(this), to, tokenIds, amounts);
   }
 
+/**
+ * @dev Internal function to transfer ERC1155 NFT or ERC721 token from sender to this contract
+ * 
+ * @param tokenContract The ERC721 or ERC1155 contract to be transfer
+ * @param from The sender of the transfer
+ * @param to The address to receive the transfer
+ * @param tokenIds The ids of the NFT to be transfer
+ * @param amounts The amounts of NFT to be transfer, null if it is an ERC721 contract
+ */
   function _transferToken(address tokenContract, address from, address to, uint256[] calldata tokenIds, uint256[] calldata amounts) internal {
     if (isERC721(tokenContract)) {
       for(uint256 i = 0; i < tokenIds.length; i++) {
