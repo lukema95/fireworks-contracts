@@ -111,19 +111,35 @@ contract Fireworks is Ownable, ReentrancyGuard, IERC165, IERC721Receiver, IERC11
     }
   }
 
-  // verify that the token contract is authorized to the contract
-  function _verifyApprove(address tokenContract) internal view returns(bool) {
+  /**
+   * @dev Internal view function to verify that the token contract is authorized to the contract
+   * 
+   * @param tokenContract The address of the contract to verify
+   * 
+   * @return isApprove A boolean indicating whether the sender's ERC721/ERC1155 
+   *                   contract is authorized to this contract
+   */
+  function _verifyApprove(address tokenContract) internal view returns(bool isApprove) {
     if (isERC721(tokenContract)) {
-      return IERC721(tokenContract).isApprovedForAll(msg.sender, address(this));
+      isApprove = IERC721(tokenContract).isApprovedForAll(msg.sender, address(this));
+      return isApprove;
     }else {
-      return IERC1155(tokenContract).isApprovedForAll(msg.sender, address(this));
+      isApprove = IERC1155(tokenContract).isApprovedForAll(msg.sender, address(this));
+      return isApprove;
     }
 
   }
 
-  // check whether the given contract is ERC721 or ERC1155, and return false if not
-  function _checkContract(address tokenAddress) internal view returns(bool) {
-    return isERC1155(tokenAddress) || isERC721(tokenAddress);
+  /**
+   * @dev Internal view function to check whether the contract is ERC721 or ERC1155
+   * 
+   * @param tokenContract The address of the contract to check
+   * 
+   * @return isNFTContract A boolean indicating whether the contract is ERC721 or ERC1155
+   */
+  function _checkContract(address tokenAddress) internal view returns(bool isNFTContract) {
+    isNFTContract = isERC1155(tokenAddress) || isERC721(tokenAddress);
+    return isNFTContract;
   }
   
 }
