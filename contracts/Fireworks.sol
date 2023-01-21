@@ -133,7 +133,7 @@ contract Fireworks is Ownable, ReentrancyGuard, IERC165, IERC721Receiver, IERC11
   /**
    * @dev Internal view function to check whether the contract is ERC721 or ERC1155
    * 
-   * @param tokenContract The address of the contract to check
+   * @param tokenAddress The address of the contract to check
    * 
    * @return isNFTContract A boolean indicating whether the contract is ERC721 or ERC1155
    */
