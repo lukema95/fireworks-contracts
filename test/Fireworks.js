@@ -15,7 +15,7 @@ describe("Fireworks", function () {
     const [owner, otherAccount] = await ethers.getSigners();
 
     const Fireworks = await ethers.getContractFactory("Fireworks");
-    const fireworks = await Fireworks.deploy(unlockTime, { value: lockedAmount });
+    const fireworks = await Fireworks.deploy();
 
     return { fireworks, owner, otherAccount };
   }
