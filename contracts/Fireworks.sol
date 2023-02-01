@@ -37,7 +37,7 @@ contract Fireworks is Ownable, ReentrancyGuard, IERC165, IERC721Receiver, IERC11
 
   /**
   * @dev always returns `IERC721Receiver.onERC721Received.selector`.
-  * more details: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC1155/IERC1155Receiver.sol
+  * more details: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/IERC721Receiver.sol
   */
   function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
     return this.onERC721Received.selector;
@@ -45,7 +45,8 @@ contract Fireworks is Ownable, ReentrancyGuard, IERC165, IERC721Receiver, IERC11
 
   /**
   * @dev always returns `IERC1155Receiver.onERC1155Received.selector`.
-  * more details: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/IERC721Receiver.sol
+  * more details: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC1155/IERC1155Receiver.sol
+  * 
   */
   function onERC1155Received(address, address, uint256, uint256, bytes memory) public virtual returns (bytes4) {
     return this.onERC1155Received.selector;
@@ -53,7 +54,7 @@ contract Fireworks is Ownable, ReentrancyGuard, IERC165, IERC721Receiver, IERC11
 
   /**
   * @dev always returns `IERC1155Receiver.onERC1155BatchReceived.selector`.
-  * more details:  https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/IERC721Receiver.sol
+  * more details: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC1155/IERC1155Receiver.sol
   */
   function onERC1155BatchReceived(
     address,
